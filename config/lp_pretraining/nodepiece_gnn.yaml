@@ -1,0 +1,46 @@
+output_dir: ~/git/InductiveQE/experiments
+
+dataset:
+  class: InductiveFB15k237DatasetLP
+  path: ~/git/InductiveQE/data
+  ratio: {{ ratio }}                          # specify dataset ratio here
+
+task:
+  class: InductiveKnowledgeGraphCompletion
+  model:
+    class: NodePiece
+    input_dim: 200                            # Hyperparams from Table 11 (Appendix D of the paper)
+    rel_context: 20
+    num_anchors: 0                            # turn off anchor tokenizing
+    ancs_per_node: 10                         # not used
+    hidden_dims: [200, 200, 200]              # 3-layer GNN
+    scoring_function: complex
+    pooler: cat                               # concat + MLP pooler
+    message_func: rotate
+    aggregate_func: sum
+    short_cut: yes
+    layer_norm: yes
+    gnn: yes                                  # GNN for this model
+    use_boundary: False
+    use_inverses: True
+  criterion: bce
+  num_negative: 128
+  strict_negative: yes
+  adversarial_temperature: {{ temp }}         # adversarial temperature might vary for different datasets
+  sample_weight: no
+
+optimizer:
+  class: Adam
+  lr: 1.0e-4
+
+engine:
+  gpus: {{ gpus }}
+  batch_size: 256
+  logger: {{ logger }}                        # 'wandb' or 'console' (w/o quotes)
+
+train:
+  num_epoch: {{ epochs }}                     # desired number of epochs to train
+
+metric: mrr
+save_embs: True                               # save entity/relation embeddings of the test graph after training
+skip_eval_on_train: True                      # do not perform evaluation on the training set

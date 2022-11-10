@@ -1,0 +1,48 @@
+output_dir: ~/git/InductiveQE/experiments
+
+dataset:
+  class: InductiveWikiKGDatasetLP
+  path: ~/git/InductiveQE/data
+
+task:
+  class: InductiveKnowledgeGraphCompletion
+  model:
+    class: NodePiece
+    input_dim: 100
+    rel_context: 20
+    num_anchors: 20000
+    ancs_per_node: 20
+    hidden_dims: [200, 200, 200]      # not used
+    scoring_function: complex
+    pooler: cat
+    message_func: rotate
+    aggregate_func: sum
+    short_cut: yes
+    layer_norm: yes
+    gnn: False
+    use_boundary: False
+    use_inverses: True
+    wikikg: {{ vocab }}
+  criterion: bce
+  num_negative: 64
+  strict_negative: yes
+  adversarial_temperature: 1
+  sample_weight: no
+  batched_eval: True
+
+optimizer:
+  class: Adam
+  lr: 1.0e-4
+
+engine:
+  gpus: {{ gpus }}
+  batch_size: 512
+  # logger: wandb
+
+train:
+  num_epoch: 100
+
+metric: mrr
+fast_test: 1000
+save_embs: True
+skip_eval_on_train: True

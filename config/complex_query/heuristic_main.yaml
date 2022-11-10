@@ -1,0 +1,31 @@
+output_dir: ~/git/InductiveQE/experiments
+
+dataset:
+  class: InductiveFB15k237Comp
+  path: ~/git/InductiveQE/data
+  ratio: {{ ratio }}
+
+task:
+  class: InductiveLogicalQuery
+  model:
+    class: HeuristicBaseline
+    inverse_mode: "2x"
+  criterion: bce
+  sample_weight: no
+  adversarial_temperature: 0.1
+
+optimizer:
+  class: Adam
+  lr: 5.0e-3
+
+engine:
+  gpus: {{ gpus }}
+  batch_size: 512
+
+train:
+  num_epoch: 0                  # Heuristic baseline doesn't need any training
+  batch_per_epoch: 0
+
+metric: mrr
+skip_eval_on_train: True        # No eval on train queries needed here
+save_embs: False

@@ -1,0 +1,42 @@
+output_dir: ~/git/InductiveQE/experiments
+
+dataset:
+  class: InductiveFB15k237Comp
+  path: ~/git/InductiveQE/data
+  ratio: {{ ratio }}                # specify dataset ratio here or when running the script
+
+task:
+  class: InductiveLogicalQuery
+  model:
+    class: GNN-QE
+    model:
+      class: NBFNet
+      input_dim: 32                 # Hyperparams from Table 14 (Appendix D of the paper)
+      hidden_dims: [32, 32, 32, 32]
+      message_func: distmult
+      aggregate_func: pna
+      short_cut: yes
+      layer_norm: yes
+      dependent: yes
+    logic: product
+    dropout_ratio: 0.5
+  criterion: bce
+  sample_weight: no
+  adversarial_temperature: 0.1
+
+optimizer:
+  class: Adam
+  lr: 5.0e-3
+
+engine:
+  gpus: {{ gpus }}
+  batch_size: 64                    # reduce if doesn't fit on a GPU
+
+train:
+  num_epoch: 10                     # total number of optimization steps will be num_epochs * batch_per_epoch
+  batch_per_epoch: 1000             # number of batches to be considered as "one epoch"
+
+metric: mrr
+fast_test: 1000                     # GNN-QE is slow in inference, use this option for a random subsample of valid data
+skip_eval_on_train: True            # do not run evaluation on the training data, use the gnnqe_eval_train config instead
+save_embs: False                    # doesn't work for GNN-QE as it saves its checkpoints automatically
